@@ -1,0 +1,110 @@
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+def props = new Properties()
+file('../../version.properties').withInputStream { props.load(it) }
+version=props.version
+group='com.brewinandchewin'
+base.archivesName='brewinandchewin'
+sourceSets.main.resources.srcDir '../../common/src/main/resources'
+def generatedJava=layout.buildDirectory.dir('generated/version/java')
+sourceSets.main.java.srcDir generatedJava
+tasks.register('generateVersion') {
+ inputs.property('modVersion',project.version);outputs.dir generatedJava
+ doLast {
+  def out=new File(generatedJava.get().asFile,'com/brewinandchewin/legacy/BuildVersion.java');out.parentFile.mkdirs()
+  out.text="package com.brewinandchewin.legacy; public final class BuildVersion { public static final String VERSION = \"${project.version}\"; private BuildVersion() {} }\n"
+ }
+}
+compileJava.dependsOn 'generateVersion' 
+def fd=file('../../../FarmersDelight-Legacy')
+def fdProps=new Properties(); new File(fd,'version.properties').withInputStream { fdProps.load(it) }
+dependencies { compileOnly files(new File(fd,"versions/${minecraftTarget}/build/devlibs/farmersdelight-${fdProps.version}+mc${minecraftTarget}-dev.jar")) }
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
+processResources {
+ inputs.dir file('../../src/main/resources')
+ inputs.dir file('../../src/generated/resources')
+ filesMatching('mcmod.info') { expand(modVersion:project.version,minecraftTarget:minecraftTarget) }
+ doLast {
+  def roots=[file('../../src/main/resources'),file('../../src/generated/resources')]
+  def dest=destinationDir
+  def writeJson={ String path,Object value -> def out=new File(dest,path);out.parentFile.mkdirs();out.setText(JsonOutput.toJson(value),'UTF-8') }
+  def recipes=[:],tags=[:],language=[:],models=[:],states=[:]
+  roots.each { source ->
+   fileTree(new File(source,'data/brewinandchewin/recipes')).matching { include '**/*.json' }.files.sort().each { f ->
+    def id='brewinandchewin:'+new File(source,'data/brewinandchewin/recipes').toPath().relativize(f.toPath()).toString().replace('\\','/').replaceAll(/\.json$/,'')
+    def json=new JsonSlurper().parse(f)
+    if(json.type=='forge:conditional') {
+     if(json.recipes.size()!=1 || json.recipes[0].conditions.any { it.type!='forge:mod_loaded' || it.modid!='farmersdelight' }) throw new GradleException("Unsupported optional recipe condition: ${id}")
+     json=json.recipes[0].recipe
+    }
+    recipes[id]=json
+   }
+   fileTree(new File(source,'data')).matching { include '*/tags/items/**/*.json' }.files.each { f ->
+    def parts=new File(source,'data').toPath().relativize(f.toPath()).toString().replace('\\','/').split('/tags/items/')
+    def id=parts[0]+':'+parts[1].replaceAll(/\.json$/,'');def tag=new JsonSlurper().parse(f)
+    if(tags[id]) tags[id].values.addAll(tag.values);else tags[id]=tag
+   }
+   copy { from new File(source,'assets/brewinandchewin/textures/gui');into new File(dest,'assets/brewinandchewin/textures/gui') };copy { from new File(source,'assets/brewinandchewin/textures/mob_effect');into new File(dest,'assets/brewinandchewin/textures/mob_effect') }
+   ['item':'items','block':'blocks'].each { modern,nativeDir -> copy { from new File(source,'assets/brewinandchewin/textures/'+modern);into new File(dest,'assets/brewinandchewin/textures/'+nativeDir) } }
+   def lang=new File(source,'assets/brewinandchewin/lang/en_us.json');if(lang.isFile()) language.putAll(new JsonSlurper().parse(lang))
+   fileTree(new File(source,'assets/brewinandchewin/models')).matching { include '**/*.json' }.files.each { f -> models[new File(source,'assets/brewinandchewin/models').toPath().relativize(f.toPath()).toString().replace('\\','/')]=new JsonSlurper().parse(f) }
+   fileTree(new File(source,'assets/brewinandchewin/blockstates')).matching { include '*.json' }.files.each { f -> states[f.name]=new JsonSlurper().parse(f) }
+  }
+  writeJson('brewinandchewin/source_recipes.json',recipes);writeJson('brewinandchewin/source_tags.json',tags)
+  def lang=new File(dest,"assets/brewinandchewin/lang/${minecraftTarget=='1.12.2'?'en_us':'en_US'}.lang");lang.parentFile.mkdirs();if(lang.exists()) lang.delete()
+  lang.setText(language.collect { k,v -> (k.startsWith('block.')?k.replaceFirst('block.','tile.')+'.name':k.startsWith('item.')?k+'.name':k)+'='+v }.join('\n')+'\n','UTF-8')
+  def expandModel
+  expandModel={ model ->
+   if(model.parent?.startsWith('brewinandchewin:')) {
+    def parent=models[model.parent.substring('brewinandchewin:'.length())+'.json']
+    if(!parent) throw new GradleException("Missing native model parent ${model.parent}")
+    expandModel(parent)
+    if(!model.elements) model.elements=parent.elements
+    model.textures=(parent.textures?:[:])+(model.textures?:[:]);model.parent='block/block'
+   }
+  }
+  models.values().each { expandModel(it) }
+  models.each { path,json ->
+   if(json.textures) json.textures=json.textures.collectEntries { k,v -> [(k):v.replace(':block/',':blocks/').replace(':item/',':items/')] }
+   if(json.parent=='minecraft:block/orientable_with_bottom') {
+    json.parent='block/cube';json.textures=[particle:json.textures.side,down:json.textures.bottom,up:json.textures.top,north:json.textures.front,south:json.textures.side,east:json.textures.side,west:json.textures.side]
+   }
+   if(json.parent?.startsWith('minecraft:')) json.parent=json.parent.substring('minecraft:'.length())
+   // The feast models contain explicit cuboids, also read by FD's 1.7.10 native renderer.
+   if(path.startsWith('block/') || minecraftTarget=='1.12.2') writeJson('assets/brewinandchewin/models/'+path,json)
+  }
+  if(minecraftTarget=='1.12.2') states.each { path,json ->
+   json.variants.values().each { v -> v.model=v.model.replace('brewinandchewin:block/','brewinandchewin:') }
+   writeJson('assets/brewinandchewin/blockstates/'+path,json)
+  }
+ }
+}
+
+jar {
+ from(new File(fd,'LICENSE')) { into 'META-INF'; rename { 'LICENSE-FarmersDelight.txt' } }
+
+ from('../../LICENSE') { into 'META-INF'; rename { 'LICENSE-BrewinAndChewin.txt' } }
+ manifest { attributes 'Implementation-Title':"Brewin and Chewin Legacy",'Implementation-Version':project.version }
+ preserveFileTimestamps=false; reproducibleFileOrder=true
+ archiveFileName="brewinandchewin-${project.version}+mc${minecraftTarget}-dev.jar"
+ destinationDirectory=layout.buildDirectory.dir('devlibs')
+}
+tasks.matching { it.name in ['remapJar','reobfJar'] }.configureEach {
+ archiveFileName="brewinandchewin-${project.version}+mc${minecraftTarget}.jar"
+ destinationDirectory=layout.buildDirectory.dir('libs')
+}
+def production=providers.provider { tasks.named(minecraftTarget=='1.7.10' ? 'reobfJar' : 'remapJar').get() }
+tasks.register('release',Sync) {
+ dependsOn production
+ from production.flatMap { it.archiveFile }
+ into layout.buildDirectory.dir('release')
+ doFirst {
+  def jar=production.get().archiveFile.get().asFile
+  def zip=new java.util.zip.ZipFile(jar)
+  try {
+   ['mcmod.info','brewinandchewin/foods.json','brewinandchewin/source_recipes.json','brewinandchewin/source_tags.json','com/brewinandchewin/legacy/BrewinAndChewin.class','com/brewinandchewin/legacy/KegTile.class','assets/brewinandchewin/textures/gui/keg.png'].each { if(!zip.getEntry(it)) throw new GradleException("Missing distribution entry: ${it}") }
+   zip.entries().each { e -> if(e.name.startsWith('vectorwing/') || e.name.startsWith('net/minecraft/') || e.name.endsWith('.java')) throw new GradleException("Bundled dependency/source: ${e.name}") }
+  } finally { zip.close() }
+ }
+}
+tasks.named('build') { dependsOn 'release' }

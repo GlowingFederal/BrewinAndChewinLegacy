@@ -1,0 +1,398 @@
+[
+  {
+    "id": "beer",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 8
+  },
+  {
+    "id": "vodka",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 12
+  },
+  {
+    "id": "mead",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 8,
+    "nutrition": 6,
+    "saturation": 0.1,
+    "effects": [
+      {
+        "effect": "brewinandchewin:sweet_heart",
+        "duration": 6000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "rice_wine",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 5,
+    "effects": [
+      {
+        "effect": "brewinandchewin:satisfaction",
+        "duration": 6000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "egg_grog",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 0,
+    "effects": [
+      {
+        "effect": "absorption",
+        "duration": 3600,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "strongroot_ale",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 2,
+    "boozeDuration": 12,
+    "effects": [
+      {
+        "effect": "resistance",
+        "duration": 6000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "saccharine_rum",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 2,
+    "boozeDuration": 8,
+    "nutrition": 6,
+    "saturation": 0.1,
+    "effects": [
+      {
+        "effect": "brewinandchewin:sweet_heart",
+        "duration": 9600,
+        "amplifier": 1,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "pale_jane",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 5,
+    "effects": [
+      {
+        "effect": "brewinandchewin:satisfaction",
+        "duration": 9600,
+        "amplifier": 1,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "dread_nog",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 3,
+    "boozeDuration": 5
+  },
+  {
+    "id": "salty_folly",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 2,
+    "boozeDuration": 10,
+    "effects": [
+      {
+        "effect": "water_breathing",
+        "duration": 9600,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "steel_toe_stout",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 3,
+    "boozeDuration": 10,
+    "effects": [
+      {
+        "effect": "resistance",
+        "duration": 12000,
+        "amplifier": 1,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "glittering_grenadine",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 5,
+    "effects": [
+      {
+        "effect": "glowing",
+        "duration": 12000,
+        "amplifier": 0,
+        "chance": 1.0
+      },
+      {
+        "effect": "night_vision",
+        "duration": 12000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "bloody_mary",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 12,
+    "effects": [
+      {
+        "effect": "comfort",
+        "duration": 6000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "red_rum",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 18,
+    "effects": [
+      {
+        "effect": "comfort",
+        "duration": 9600,
+        "amplifier": 1,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "withering_dross",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 3,
+    "boozeDuration": 20,
+    "effects": [
+      {
+        "effect": "blindness",
+        "duration": 12000,
+        "amplifier": 0,
+        "chance": 0.5
+      },
+      {
+        "effect": "weakness",
+        "duration": 12000,
+        "amplifier": 0,
+        "chance": 0.5
+      },
+      {
+        "effect": "slowness",
+        "duration": 12000,
+        "amplifier": 0,
+        "chance": 0.5
+      },
+      {
+        "effect": "wither",
+        "duration": 12000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "kombucha",
+    "kind": "food",
+    "action": "drink",
+    "alwaysEat": true,
+    "container": "brewinandchewin:tankard",
+    "stackSize": 16,
+    "potency": 1,
+    "boozeDuration": 5,
+    "effects": [
+      {
+        "effect": "brewinandchewin:satisfaction",
+        "duration": 3600,
+        "amplifier": 0,
+        "chance": 1.0
+      },
+      {
+        "effect": "haste",
+        "duration": 6000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "kimchi",
+    "kind": "food",
+    "nutrition": 2,
+    "saturation": 0.6,
+    "effects": [
+      {
+        "effect": "brewinandchewin:satisfaction",
+        "duration": 2400,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "jerky",
+    "kind": "food",
+    "nutrition": 3,
+    "saturation": 0.7,
+    "fast": true,
+    "effects": []
+  },
+  {
+    "id": "pickled_pickles",
+    "kind": "food",
+    "nutrition": 4,
+    "saturation": 0.3,
+    "effects": [
+      {
+        "effect": "night_vision",
+        "duration": 2400,
+        "amplifier": 0,
+        "chance": 1.0
+      },
+      {
+        "effect": "luck",
+        "duration": 6000,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "kippers",
+    "kind": "food",
+    "nutrition": 6,
+    "saturation": 0.5,
+    "effects": [
+      {
+        "effect": "water_breathing",
+        "duration": 600,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "cocoa_fudge",
+    "kind": "food",
+    "nutrition": 4,
+    "saturation": 0.8,
+    "effects": [
+      {
+        "effect": "speed",
+        "duration": 400,
+        "amplifier": 0,
+        "chance": 1.0
+      }
+    ]
+  },
+  {
+    "id": "flaxen_cheese_wedge",
+    "kind": "food",
+    "nutrition": 4,
+    "saturation": 1.0,
+    "effects": []
+  },
+  {
+    "id": "scarlet_cheese_wedge",
+    "kind": "food",
+    "nutrition": 4,
+    "saturation": 1.0,
+    "effects": []
+  },
+  {
+    "id": "pizza_slice",
+    "kind": "food",
+    "nutrition": 3,
+    "saturation": 1.0,
+    "effects": []
+  },
+  {
+    "id": "ham_and_cheese_sandwich",
+    "kind": "food",
+    "nutrition": 9,
+    "saturation": 1.0,
+    "effects": []
+  }
+]

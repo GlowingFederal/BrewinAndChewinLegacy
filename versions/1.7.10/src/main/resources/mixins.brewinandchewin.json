@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.brewinandchewin.legacy.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "FoodStatsMixin",
+    "PotionLevelAccessor",
+    "TipsyCureMixin",
+    "PotionHandshakeMixin"
+  ],
+  "client": [
+    "MatDamageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "mixins.brewinandchewin.refmap.json"
+}

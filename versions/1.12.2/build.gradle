@@ -1,0 +1,33 @@
+plugins { id 'java'; id 'xyz.wagyourtail.unimined' version '1.4.1' }
+ext.minecraftTarget = '1.12.2'
+apply from: '../../build-logic/legacy.gradle'
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+tasks.withType(JavaCompile).configureEach { options.release = 8 }
+unimined.minecraft {
+ version '1.12.2'
+ mappings { mcp('stable', '39-1.12') }
+ minecraftForge { loader '14.23.5.2859' }
+}
+
+jar.finalizedBy 'remapJar'
+
+repositories { maven { url='https://maven.cleanroommc.com' } }
+dependencies { implementation('zone.rong:mixinbooter:11.18') { transitive=false };annotationProcessor 'zone.rong:mixinbooter:11.18' }
+def mapping=layout.buildDirectory.file('generated/mapping/brewin.srg')
+def refmap=layout.buildDirectory.file('generated/mixinResources/mixins.brewinandchewin.refmap.json')
+tasks.register('generateMixinMapping') {
+ outputs.file mapping
+ doLast {
+  def file=mapping.get().asFile;file.parentFile.mkdirs()
+  file.text='MD: net/minecraft/util/FoodStats/onUpdate (Lnet/minecraft/entity/player/EntityPlayer;)V net/minecraft/util/FoodStats/func_75118_a (Lnet/minecraft/entity/player/EntityPlayer;)V\n'
+  file << 'MD: net/minecraft/entity/player/EntityPlayer/heal (F)V net/minecraft/entity/player/EntityPlayer/func_70691_i (F)V\n'
+  file << 'MD: net/minecraft/client/renderer/BlockRendererDispatcher/renderBlockDamage (Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/world/IBlockAccess;)V net/minecraft/client/renderer/BlockRendererDispatcher/func_175020_a (Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;Lnet/minecraft/world/IBlockAccess;)V\n'
+  refmap.get().asFile.parentFile.mkdirs()
+ }
+}
+compileJava { dependsOn 'generateMixinMapping';inputs.file mapping;outputs.file refmap;options.compilerArgs += ["-AreobfSrgFile=${mapping.get().asFile}","-AoutRefMapFile=${refmap.get().asFile}"] }
+processResources { dependsOn compileJava;from(refmap) }
+jar { manifest { attributes 'MixinConfigs':'mixins.brewinandchewin.json' } }
+
+repositories { maven { url='https://maven.blamejared.com' } }
+dependencies { compileOnly 'mezz.jei:jei_1.12.2:4.16.1.302:api' }
