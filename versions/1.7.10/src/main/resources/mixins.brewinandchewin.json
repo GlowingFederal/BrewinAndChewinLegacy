@@ -2,6 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.brewinandchewin.legacy.mixin",
+  "plugin": "com.brewinandchewin.legacy.mixin.BrewinMixinPlugin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "FoodStatsMixin",
