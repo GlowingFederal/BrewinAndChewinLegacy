@@ -30,6 +30,7 @@ public final class BrewinAndChewin {
   block("pizza",new WheelBlock("pizza",true),1);
   cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(KegTile.class,"brewinandchewin:keg");cpw.mods.fml.common.registry.GameRegistry.registerTileEntity(MatTile.class,"brewinandchewin:item_mat");
   net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new EffectEvents());proxy.preInit();
+  if(cpw.mods.fml.common.Loader.isModLoaded("AppleCore")) com.brewinandchewin.legacy.integration.AppleCoreCompat.register();
  }
  @Mod.EventHandler public void init(cpw.mods.fml.common.event.FMLInitializationEvent event) {
   SourceRecipes.addCatalog("brewinandchewin",BrewinAndChewin.class,"/brewinandchewin/source_recipes.json");SourceTags.addCatalog(BrewinAndChewin.class,"/brewinandchewin/source_tags.json");

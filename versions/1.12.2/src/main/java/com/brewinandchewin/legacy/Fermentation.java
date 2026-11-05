@@ -14,19 +14,27 @@ public final class Fermentation {
    Recipe recipe=new Recipe(entry.getKey(),json);
    if(recipe.valid()) ALL.add(recipe);else DEFERRED.put(entry.getKey(),"An original ingredient, liquid or container is unavailable; waiting for its real provider");
   }
+  vectorwing.farmersdelight.legacy.ScriptRecipes.register("fermenting", ALL, Recipe::new, r -> r.id,
+   r -> Collections.singletonList(r.result), () -> {});
  }
  public static final class Recipe {
   public final String id;public final List<List<ItemStack>> ingredients=new ArrayList<List<ItemStack>>();
-  public final List<ItemStack> liquid;public final ItemStack result,container;public final int time,temperature;public final float experience;
+  public final List<ItemStack> liquid;public final ItemStack result,container;public final int time,temperature;public final float experience;private final boolean requiresLiquid,requiresContainer;
+  Recipe(vectorwing.farmersdelight.legacy.ScriptRecipes.Spec spec) {
+   id=spec.id;ingredients.addAll(spec.inputs);liquid=spec.liquid;result=spec.outputs.get(0);container=spec.container;
+   time=spec.time;temperature=spec.temperature;experience=spec.experience;
+   requiresLiquid=!liquid.isEmpty();requiresContainer=!Stacks.empty(container);
+  }
   Recipe(String id,JsonObject json) {
    this.id=id;for(JsonElement ingredient:json.getAsJsonArray("ingredients")) ingredients.add(Stacks.candidates(ingredient));
    liquid=json.has("liquid") && !json.getAsJsonObject("liquid").entrySet().isEmpty()?Stacks.candidates(json.get("liquid")):Collections.<ItemStack>emptyList();
+   requiresLiquid=json.has("liquid") && !json.getAsJsonObject("liquid").entrySet().isEmpty();requiresContainer=json.has("container");
    result=Stacks.result(json.getAsJsonObject("result"));container=json.has("container")?Stacks.result(json.getAsJsonObject("container")):Stacks.none();
    time=json.has("fermentingtime")?json.get("fermentingtime").getAsInt():json.has("cookingtime")?json.get("cookingtime").getAsInt():12000;
    temperature=json.get("temperature").getAsInt();experience=json.has("experience")?json.get("experience").getAsFloat():0;
    if(time<=0 || temperature<1 || temperature>5 || ingredients.size()>4) throw new IllegalArgumentException("Invalid fermentation: "+id);
   }
-  boolean valid() { if(Stacks.empty(result)) return false;for(List<ItemStack> choices:ingredients) if(choices.isEmpty()) return false;return true; }
+  boolean valid() { if(Stacks.empty(result) || requiresLiquid && liquid.isEmpty() || requiresContainer && Stacks.empty(container)) return false;for(List<ItemStack> choices:ingredients) if(choices.isEmpty()) return false;return true; }
   public boolean matches(KegTile keg) {
    int count=0;for(int i=0;i<4;i++) if(!Stacks.empty(keg.getStackInSlot(i))) count++;
    return count==ingredients.size() && (liquid.isEmpty()?Stacks.empty(keg.getStackInSlot(4)):Stacks.matches(liquid,keg.getStackInSlot(4))) && assign(keg,0,0);

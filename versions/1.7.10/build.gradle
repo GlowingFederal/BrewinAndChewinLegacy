@@ -6,3 +6,4 @@ jar.finalizedBy 'reobfJar'
 
 repositories { maven { url='https://nexus.gtnewhorizons.com/repository/public/' };maven { url='https://maven.covers1624.net' } }
 dependencies { compileOnly('codechicken:NotEnoughItems:1.7.10-1.0.5.120:dev') { transitive=false };compileOnly('codechicken:CodeChickenLib:1.7.10-1.1.3.140:dev') { transitive=false } }
+dependencies { compileOnly('com.github.GTNewHorizons:AppleCore:3.3.13:dev') { transitive=false } }

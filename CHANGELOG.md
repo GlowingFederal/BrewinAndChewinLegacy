@@ -12,3 +12,13 @@
 
 - Use enabled UAB berries, honey, beetroot, fungi, flowers, iron nuggets and turtle eggs in original fermentation chains, preserving temperature, duration, quantities and serving containers. Reject unavailable liquids/containers; recognize enabled UAB kelp and pickle ingredients when provided, and defer missing content and tea providers.
 - Follow the shared compatibility settings in farmersdelight.cfg, existing addon settings and UAB feature availability. Keep UAB optional and preserve saved registrations and other Minecraft implementations.
+
+2026-11-02 01:08 — Expose native keg recipes to optional scripting
+
+- Connect keg additions/removals to the shared version-specific scripting integration without requiring a scripting mod. Retain item liquids, NBT, servings, containers, temperatures, full-width durations and XP.
+- Reject original 1.12.2 recipes whose required liquid or serving container is unresolved. Refresh cached keg recipes after script edits and document ecosystem UAB/scripting behavior.
+
+2026-11-04 15:48 — Support AppleCore food regeneration on 1.7.10
+
+- Apply the optional AppleCore event integration proposed in PR #1 by ailanlana. Skip the vanilla FoodStats redirect when AppleCore is present, avoiding the AppleCore Unofficial overwrite conflict during startup.
+- Cancel food healing for Tipsy II and above while retaining regeneration exhaustion, without allowing Sweet Heart to revive a suppressed heal. Use the shared API supported by original AppleCore and the unofficial fork; keep AppleCore optional and unbundled.

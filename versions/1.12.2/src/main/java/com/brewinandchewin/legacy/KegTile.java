@@ -7,6 +7,7 @@ import net.minecraft.entity.item.EntityXPOrb;
 public final class KegTile extends InventoryTile implements net.minecraft.util.ITickable {
  public int progress,total=12000,temperature;public String customName="";
  private String recipeId="";private Fermentation.Recipe cached;private boolean dirty=true;
+ private int scriptRevision=ScriptRecipes.revision();
  private int temperatureTicks;private float experience;
  private ItemStack servingContainer=Stacks.none();
  public KegTile() { super(8); }
@@ -14,6 +15,7 @@ public final class KegTile extends InventoryTile implements net.minecraft.util.I
  public void update() {
   if(world==null || world.isRemote) return;
   if(temperatureTicks--<=0) { temperatureTicks=20;updateTemperature(); }
+  if(scriptRevision!=ScriptRecipes.revision()) { scriptRevision=ScriptRecipes.revision();dirty=true;progress=0; }
   if(dirty) {
    Fermentation.Recipe next=Fermentation.find(this);String nextId=next==null?"":next.id;
    if(!recipeId.equals(nextId)) progress=0;

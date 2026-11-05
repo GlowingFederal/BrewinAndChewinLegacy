@@ -14,10 +14,17 @@ public final class Fermentation {
    Recipe recipe=new Recipe(entry.getKey(),json);
    if(recipe.valid()) ALL.add(recipe);else DEFERRED.put(entry.getKey(),"An original ingredient, liquid or container is unavailable; waiting for its real provider");
   }
+  vectorwing.farmersdelight.legacy.ScriptRecipes.register("fermenting", ALL, Recipe::new, r -> r.id,
+   r -> Collections.singletonList(r.result), () -> {});
  }
  public static final class Recipe {
   public final String id;public final List<List<ItemStack>> ingredients=new ArrayList<List<ItemStack>>();
   public final List<ItemStack> liquid;public final ItemStack result,container;public final int time,temperature;public final float experience;private final boolean requiresLiquid,requiresContainer;
+  Recipe(vectorwing.farmersdelight.legacy.ScriptRecipes.Spec spec) {
+   id=spec.id;ingredients.addAll(spec.inputs);liquid=spec.liquid;result=spec.outputs.get(0);container=spec.container;
+   time=spec.time;temperature=spec.temperature;experience=spec.experience;
+   requiresLiquid=!liquid.isEmpty();requiresContainer=!Stacks.empty(container);
+  }
   Recipe(String id,JsonObject json) {
    this.id=id;for(JsonElement ingredient:json.getAsJsonArray("ingredients")) ingredients.add(Stacks.candidates(ingredient));
    liquid=json.has("liquid") && !json.getAsJsonObject("liquid").entrySet().isEmpty()?Stacks.candidates(json.get("liquid")):Collections.<ItemStack>emptyList();
