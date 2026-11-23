@@ -22,3 +22,13 @@
 
 - Apply the optional AppleCore event integration proposed in PR #1 by ailanlana. Skip the vanilla FoodStats redirect when AppleCore is present, avoiding the AppleCore Unofficial overwrite conflict during startup.
 - Cancel food healing for Tipsy II and above while retaining regeneration exhaustion, without allowing Sweet Heart to revive a suppressed heal. Use the shared API supported by original AppleCore and the unofficial fork; keep AppleCore optional and unbundled.
+
+2026-11-12 13:32 — Report fermentation coverage and unavailable keg progression
+
+- Supply the live fermentation catalog to optional Farmer's Delight recipe diagnostics on both native targets, including exact missing input/liquid/container reasons and input assignment checks.
+- Distinguish registered fermentation from survival keg acquisition when honeycomb is unavailable. Preserve original recipes, saved machines and the existing optional UAB relationship; diagnostics remain optional with older compatible Farmer's Delight releases.
+- Render the native keg artwork, temperature gauge and progress on 1.12.2 JEI pages; register the real keg category icon and catalyst during 1.7.10 pre-initialization so both supported GTNH NEI builds show the workstation instead of fallback letters.
+
+2026-11-12 14:05 — Increment patch version for release packaging
+
+- Advance the mod patch version by 0.0.1 and refresh matching native artifact and mod metadata versions.

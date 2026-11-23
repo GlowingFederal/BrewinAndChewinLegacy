@@ -12,10 +12,40 @@ public final class Fermentation {
   for(Map.Entry<String,JsonObject> entry:SourceRecipes.all().entrySet()) {
    JsonObject json=entry.getValue();if(!"brewinandchewin:fermenting".equals(json.get("type").getAsString())) continue;
    Recipe recipe=new Recipe(entry.getKey(),json);
-   if(recipe.valid()) ALL.add(recipe);else DEFERRED.put(entry.getKey(),"An original ingredient, liquid or container is unavailable; waiting for its real provider");
+   if(recipe.valid()) ALL.add(recipe);else DEFERRED.put(entry.getKey(),recipe.unavailable());
   }
   vectorwing.farmersdelight.legacy.ScriptRecipes.register("fermenting", ALL, Recipe::new, r -> r.id,
    r -> Collections.singletonList(r.result), () -> {});
+  // Diagnostics are optional when using older compatible FD releases.
+  try {
+   Class.forName("vectorwing.farmersdelight.legacy.api.RecipeDiagnostics");
+   vectorwing.farmersdelight.legacy.api.RecipeDiagnostics.register("brewinandchewin:fermenting", Fermentation::inspect);
+  } catch(ClassNotFoundException absent) { /* Older FD still owns the same processing catalogs. */ }
+ }
+ /** Inspect the live catalog after scripts, without consuming items or changing a world. */
+ private static Map<String,vectorwing.farmersdelight.legacy.api.RecipeDiagnostics.Entry> inspect() {
+  Map<String,vectorwing.farmersdelight.legacy.api.RecipeDiagnostics.Entry> rows=new LinkedHashMap<>();
+  boolean keg=false;
+  for(vectorwing.farmersdelight.legacy.SourceCrafting recipe:vectorwing.farmersdelight.legacy.SourceCrafting.ALL)
+   if(recipe.id.equals("brewinandchewin:keg") && recipe.enabled()) keg=true;
+  for(Recipe recipe:ALL) {
+   boolean valid=recipe.valid();
+   KegTile tile=new KegTile();
+   if(valid) {
+    for(int i=0;i<recipe.ingredients.size();i++) tile.setInventorySlotContents(i,recipe.ingredients.get(i).get(0).copy());
+    if(!recipe.liquid.isEmpty()) tile.setInventorySlotContents(4,recipe.liquid.get(0).copy());
+    // Script predicates can require NBT/conditions beyond their viewer examples.
+    boolean scripted=recipe.liquid instanceof vectorwing.farmersdelight.legacy.ScriptRecipes.Ingredient;
+    for(List<ItemStack> input:recipe.ingredients) scripted|=input instanceof vectorwing.farmersdelight.legacy.ScriptRecipes.Ingredient;
+    if(!scripted) valid=recipe.matches(tile);
+   }
+   rows.put(recipe.id,new vectorwing.farmersdelight.legacy.api.RecipeDiagnostics.Entry("fermenting",
+    !valid?"invalid":keg?"registered":"registered_unreachable",
+    !valid?recipe.unavailable():keg?"":"No survival keg crafting route; its original honeycomb ingredient requires an enabled provider"));
+  }
+  for(Map.Entry<String,String> entry:DEFERRED.entrySet()) if(!rows.containsKey(entry.getKey()))
+   rows.put(entry.getKey(),new vectorwing.farmersdelight.legacy.api.RecipeDiagnostics.Entry("fermenting","unavailable",entry.getValue()));
+  return rows;
  }
  public static final class Recipe {
   public final String id;public final List<List<ItemStack>> ingredients=new ArrayList<List<ItemStack>>();
@@ -35,6 +65,15 @@ public final class Fermentation {
    if(time<=0 || temperature<1 || temperature>5 || ingredients.size()>4) throw new IllegalArgumentException("Invalid fermentation: "+id);
   }
   boolean valid() { if(Stacks.empty(result) || requiresLiquid && liquid.isEmpty() || requiresContainer && Stacks.empty(container)) return false;for(List<ItemStack> choices:ingredients) if(choices.isEmpty()) return false;return true; }
+  String unavailable() {
+   List<String> reasons=new ArrayList<>();
+   JsonObject source=SourceRecipes.all().get(id);
+   if(Stacks.empty(result)) reasons.add("output="+(source==null?"empty":source.get("result")));
+   if(requiresLiquid && liquid.isEmpty()) reasons.add("liquid="+(source==null?"empty":source.get("liquid")));
+   if(requiresContainer && Stacks.empty(container)) reasons.add("serving container="+(source==null?"empty":source.get("container")));
+   for(int i=0;i<ingredients.size();i++) if(ingredients.get(i).isEmpty()) reasons.add("ingredient["+i+"]="+(source==null?"empty":source.getAsJsonArray("ingredients").get(i)));
+   return reasons.isEmpty()?"Native fermentation input assignment failed":"Unavailable "+reasons+" in "+id;
+  }
   public boolean matches(KegTile keg) {
    int count=0;for(int i=0;i<4;i++) if(!Stacks.empty(keg.getStackInSlot(i))) count++;
    return count==ingredients.size() && (liquid.isEmpty()?Stacks.empty(keg.getStackInSlot(4)):Stacks.matches(liquid,keg.getStackInSlot(4))) && assign(keg,0,0);

@@ -1,6 +1,7 @@
 package com.brewinandchewin.legacy;
 public final class ClientProxy extends CommonProxy {
  public void preInit() {
+  if(cpw.mods.fml.common.Loader.isModLoaded("NotEnoughItems")) com.brewinandchewin.legacy.integration.NEIBrewinConfig.registerHandlerInfo();
   net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new Tooltips());
   vectorwing.farmersdelight.legacy.CommonProxy core=vectorwing.farmersdelight.legacy.Foundation.proxy;
   int[] keg=new int[16],slice=new int[16],age=new int[16];for(int i=0;i<16;i++) { keg[i]=(i&4)==0?1:0;slice[i]=(i>>2)&3;age[i]=(i>>2)&1; }
