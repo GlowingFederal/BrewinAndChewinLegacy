@@ -23,6 +23,8 @@ tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
 processResources {
  inputs.dir file('../../src/main/resources')
  inputs.dir file('../../src/generated/resources')
+ def nativeLanguages = file('../../common/src/main/lang')
+ inputs.dir nativeLanguages
  filesMatching('mcmod.info') { expand(modVersion:project.version,minecraftTarget:minecraftTarget) }
  doLast {
   def roots=[file('../../src/main/resources'),file('../../src/generated/resources')]
@@ -46,13 +48,28 @@ processResources {
    }
    copy { from new File(source,'assets/brewinandchewin/textures/gui');into new File(dest,'assets/brewinandchewin/textures/gui') };copy { from new File(source,'assets/brewinandchewin/textures/mob_effect');into new File(dest,'assets/brewinandchewin/textures/mob_effect') }
    ['item':'items','block':'blocks'].each { modern,nativeDir -> copy { from new File(source,'assets/brewinandchewin/textures/'+modern);into new File(dest,'assets/brewinandchewin/textures/'+nativeDir) } }
-   def lang=new File(source,'assets/brewinandchewin/lang/en_us.json');if(lang.isFile()) language.putAll(new JsonSlurper().parse(lang))
    fileTree(new File(source,'assets/brewinandchewin/models')).matching { include '**/*.json' }.files.each { f -> models[new File(source,'assets/brewinandchewin/models').toPath().relativize(f.toPath()).toString().replace('\\','/')]=new JsonSlurper().parse(f) }
    fileTree(new File(source,'assets/brewinandchewin/blockstates')).matching { include '*.json' }.files.each { f -> states[f.name]=new JsonSlurper().parse(f) }
   }
   writeJson('brewinandchewin/source_recipes.json',recipes);writeJson('brewinandchewin/source_tags.json',tags)
-  def lang=new File(dest,"assets/brewinandchewin/lang/${minecraftTarget=='1.12.2'?'en_us':'en_US'}.lang");lang.parentFile.mkdirs();if(lang.exists()) lang.delete()
-  lang.setText(language.collect { k,v -> (k.startsWith('block.')?k.replaceFirst('block.','tile.')+'.name':k.startsWith('item.')?k+'.name':k)+'='+v }.join('\n')+'\n','UTF-8')
+  (roots.collect { new File(it, 'assets/brewinandchewin/lang') } + nativeLanguages).each { directory ->
+   fileTree(directory).matching { include '*.json' }.files.sort().each { file ->
+    def locale = file.name[0..-6].toLowerCase(Locale.ROOT)
+    language.computeIfAbsent(locale) { [:] }.putAll(new JsonSlurper().parse(file))
+   }
+  }
+  language.each { locale, entries ->
+   def parts = locale.split('_', 2)
+   def nativeLocale = minecraftTarget == '1.7.10' && parts.length == 2
+    ? parts[0] + '_' + parts[1].toUpperCase(Locale.ROOT) : locale
+   def lang = new File(dest, "assets/brewinandchewin/lang/${nativeLocale}.lang")
+   lang.parentFile.mkdirs()
+   lang.setText(entries.collect { key, value ->
+    def nativeKey = key.startsWith('block.') ? 'tile.' + key.substring(6) + '.name' :
+     key.startsWith('item.') ? key + '.name' : key
+    "${nativeKey}=${value.replace('\r\n', ' ').replace('\n', ' ').replace('\r', ' ')}"
+   }.join('\n') + '\n', 'UTF-8')
+  }
   def expandModel
   expandModel={ model ->
    if(model.parent?.startsWith('brewinandchewin:')) {
@@ -102,7 +119,10 @@ tasks.register('release',Sync) {
   def jar=production.get().archiveFile.get().asFile
   def zip=new java.util.zip.ZipFile(jar)
   try {
-   ['mcmod.info','brewinandchewin/foods.json','brewinandchewin/source_recipes.json','brewinandchewin/source_tags.json','com/brewinandchewin/legacy/BrewinAndChewin.class','com/brewinandchewin/legacy/KegTile.class','assets/brewinandchewin/textures/gui/keg.png'].each { if(!zip.getEntry(it)) throw new GradleException("Missing distribution entry: ${it}") }
+   def english = minecraftTarget == '1.12.2' ? 'en_us' : 'en_US'
+   def required = ['mcmod.info','brewinandchewin/foods.json','brewinandchewin/source_recipes.json','brewinandchewin/source_tags.json','com/brewinandchewin/legacy/BrewinAndChewin.class','com/brewinandchewin/legacy/KegTile.class','assets/brewinandchewin/textures/gui/keg.png',"assets/brewinandchewin/lang/${english}.lang"]
+   if (minecraftTarget == '1.12.2') required.add('pack.mcmeta')
+   required.each { if(!zip.getEntry(it)) throw new GradleException("Missing distribution entry: ${it}") }
    zip.entries().each { e -> if(e.name.startsWith('vectorwing/') || e.name.startsWith('net/minecraft/') || e.name.endsWith('.java')) throw new GradleException("Bundled dependency/source: ${e.name}") }
   } finally { zip.close() }
  }

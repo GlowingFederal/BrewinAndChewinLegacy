@@ -1,0 +1,15 @@
+{
+  "brewinandchewin.fermenting.stats": "%s s / %s XP",
+  "brewinandchewin.fermenting.temperature.frigid": "Frigid",
+  "brewinandchewin.fermenting.temperature.cold": "Cold",
+  "brewinandchewin.fermenting.temperature.normal": "Normal",
+  "brewinandchewin.fermenting.temperature.warm": "Warm",
+  "brewinandchewin.fermenting.temperature.hot": "Hot",
+  "brewinandchewin.ripening.title": "Ripening",
+  "brewinandchewin.ripening.place": "Place on a block",
+  "brewinandchewin.ripening.stages": "Unripe > Semiripe > Ripe",
+  "brewinandchewin.ripening.chance": "%s%% chance per random tick",
+  "brewinandchewin.ripening.ticking": "Only while the block is ticking",
+  "brewinandchewin.tooltip.keg.many_servings": "Holds %s servings of:",
+  "brewinandchewin.tooltip.tipsy_stack": "Adds a Tipsy level while already Tipsy"
+}

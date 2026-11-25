@@ -12,9 +12,8 @@ import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
-import vectorwing.farmersdelight.legacy.Content;
-import vectorwing.farmersdelight.legacy.CookingRecipes;
 import vectorwing.farmersdelight.legacy.Stacks;
 
 @mezz.jei.api.JEIPlugin
@@ -22,11 +21,15 @@ public final class FermentingJEI implements mezz.jei.api.IModPlugin {
     static final String UID = "brewinandchewin.fermenting";
     private static final net.minecraft.util.ResourceLocation TEXTURE = new net.minecraft.util.ResourceLocation("brewinandchewin", "textures/gui/keg.png");
     public void registerCategories(IRecipeCategoryRegistration registration) {
+        List<AgingWheelBlock> wheels = AgingWheelBlock.registeredWheels();
+        if (!wheels.isEmpty()) {
+            registration.addRecipeCategories(new RipeningCategory(registration.getJeiHelpers().getGuiHelper(), wheels.get(0)));
+        }
         final IDrawable background = registration.getJeiHelpers().getGuiHelper().createDrawable(TEXTURE, 5, 11, 166, 65);
         final IDrawable icon = registration.getJeiHelpers().getGuiHelper().createDrawableIngredient(new ItemStack(BrewinAndChewin.BLOCKS.get("keg")));
         registration.addRecipeCategories(new IRecipeCategory<Wrapper>() {
             public String getUid() { return UID; }
-            public String getTitle() { return "Fermenting"; }
+            public String getTitle() { return I18n.format("brewinandchewin.jei.fermenting"); }
             public String getModName() { return "Brewin and Chewin Legacy"; }
             public IDrawable getBackground() { return background; }
             public IDrawable getIcon() { return icon; }
@@ -38,6 +41,9 @@ public final class FermentingJEI implements mezz.jei.api.IModPlugin {
         });
     }
     public void register(IModRegistry registry) {
+        List<RipeningCategory.Recipe> ripening = new ArrayList<>();
+        for (AgingWheelBlock wheel : AgingWheelBlock.registeredWheels()) ripening.add(new RipeningCategory.Recipe(wheel));
+        if (!ripening.isEmpty()) registry.addRecipes(ripening, RipeningCategory.UID);
         List<Wrapper> recipes = new ArrayList<Wrapper>();
         for (Fermentation.Recipe recipe : Fermentation.ALL) recipes.add(new Wrapper(recipe));
         registry.addRecipes(recipes, UID); registry.addRecipeCatalyst(new ItemStack(BrewinAndChewin.BLOCKS.get("keg")), UID);
@@ -75,8 +81,8 @@ public final class FermentingJEI implements mezz.jei.api.IModPlugin {
             if(recipe.temperature==1) net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture(72,28,176,0,6,4,256,256);
             if(recipe.temperature>=4) net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture(91,28,195,0,7,4,256,256);
             if(recipe.temperature==5) net.minecraft.client.gui.Gui.drawModalRectWithCustomSizedTexture(98,28,202,0,7,4,256,256);
-            minecraft.fontRenderer.drawString(recipe.time / 20F + " s / " + recipe.experience + " XP", 5, 56, 0x404040);
-            minecraft.fontRenderer.drawString(new String[]{"Frigid","Cold","Normal","Warm","Hot"}[recipe.temperature-1],110,2,0x404040);
+            minecraft.fontRenderer.drawString(I18n.format("brewinandchewin.fermenting.stats", recipe.time / 20F, recipe.experience), 5, 56, 0x404040);
+            minecraft.fontRenderer.drawString(I18n.format("brewinandchewin.fermenting.temperature." + Fermentation.temperatureName(recipe.temperature)), 110, 2, 0x404040);
         }
     }
 }

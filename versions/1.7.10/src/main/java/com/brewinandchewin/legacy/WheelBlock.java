@@ -21,8 +21,12 @@ public final class WheelBlock extends Block {
   if(mask.intersectsWith(front)) boxes.add(front);if(mask.intersectsWith(rear)) boxes.add(rear);
  }
  public boolean onBlockActivated(World world,int x,int y,int z,EntityPlayer player,int side,float hx,float hy,float hz) {
-   if(!pizza && !Ingredients.isKnife(player.getHeldItem())) return true;
+   if (!pizza && !Ingredients.isKnife(player.getHeldItem())) {
+    if (!world.isRemote) player.addChatMessage(new net.minecraft.util.ChatComponentTranslation("brewinandchewin.block.cheese.use_knife"));
+    return true;
+   }
    if(!world.isRemote) { int bites=(world.getBlockMetadata(x,y,z)>>2)&3;ItemStack portion=portion();
+    if (!pizza) world.playSoundEffect(x + .5, y + .5, z + .5, soundTypeCloth.getBreakSound(), 1F, 1F);
     if(!pizza || !player.inventory.addItemStackToInventory(portion)) world.spawnEntityInWorld(new net.minecraft.entity.item.EntityItem(world,x+.5,y+.5,z+.5,portion));
     if(bites==3) world.setBlockToAir(x,y,z);else world.setBlockMetadataWithNotify(x,y,z,(bites+1)<<2,3);
    }return true;

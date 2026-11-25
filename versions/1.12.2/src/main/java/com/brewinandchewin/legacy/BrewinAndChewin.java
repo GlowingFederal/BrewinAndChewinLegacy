@@ -22,7 +22,11 @@ public final class BrewinAndChewin {
    Gson gson=new Gson();for(JsonObject entry:gson.fromJson(reader,JsonObject[].class)) if(entry.get("kind").getAsString().equals("food")) add(entry.get("id").getAsString(),new DrinkFood(gson.fromJson(entry,FoodDefinition.class),entry));
   } catch(java.io.IOException e) { throw new IllegalStateException("Cannot load registered food contract",e); }
   block("keg",new KegBlock(),1);block("item_mat",new MatBlock(),64);
-  for(String type:new String[]{"flaxen","scarlet"}) { block("unripe_"+type+"_cheese_wheel",new AgingWheelBlock(type),16);block(type+"_cheese_wheel",new WheelBlock(type,false),16); }
+  for(String type:new String[]{"flaxen","scarlet"}) {
+   Block ripe = new WheelBlock(type,false);
+   block("unripe_"+type+"_cheese_wheel",new AgingWheelBlock(ripe),16);
+   block(type+"_cheese_wheel",ripe,16);
+  }
   block("pizza",new WheelBlock("pizza",true),1);
   net.minecraftforge.fml.common.registry.GameRegistry.registerTileEntity(KegTile.class,new net.minecraft.util.ResourceLocation("brewinandchewin:keg"));net.minecraftforge.fml.common.registry.GameRegistry.registerTileEntity(MatTile.class,new net.minecraft.util.ResourceLocation("brewinandchewin:item_mat"));
   net.minecraftforge.common.MinecraftForge.EVENT_BUS.register(new EffectEvents());proxy.preInit();
@@ -30,7 +34,10 @@ public final class BrewinAndChewin {
  @Mod.EventHandler public void init(net.minecraftforge.fml.common.event.FMLInitializationEvent event) {
   SourceRecipes.addCatalog("brewinandchewin",BrewinAndChewin.class,"/brewinandchewin/source_recipes.json");SourceTags.addCatalog(BrewinAndChewin.class,"/brewinandchewin/source_tags.json");
   AddonRecipes.register("brewinandchewin",new String[0],"brewinandchewin:fermenting");
-  for(String type:new String[]{"flaxen","scarlet"}) AddonRecipes.processing("brewinandchewin","brewinandchewin:unripe_"+type+"_cheese_wheel","brewinandchewin:"+type+"_cheese_wheel");
+  for (AgingWheelBlock wheel : AgingWheelBlock.registeredWheels()) {
+   AddonRecipes.processing("brewinandchewin", net.minecraft.block.Block.REGISTRY.getNameForObject(wheel).toString(),
+    net.minecraft.block.Block.REGISTRY.getNameForObject(wheel.getRipeBlock()).toString());
+  }
   net.minecraftforge.fml.common.network.NetworkRegistry.INSTANCE.registerGuiHandler(instance,proxy);
  }
  @Mod.EventHandler public void postInit(net.minecraftforge.fml.common.event.FMLPostInitializationEvent event) { Fermentation.register(); }

@@ -12,6 +12,6 @@ public final class KegGui extends GuiContainer {
   if(keg.progress>0) { int height=24-new int[]{24,20,16,12,8,4,0}[keg.progress/5%7];drawTexturedModalRect(x+74,y+14,176,4,9,height);drawTexturedModalRect(x+103,y+14,186,4,9,height); }
  }
  public void drawScreen(int x,int y,float partial) {  super.drawScreen(x,y,partial);
-  if(x>=guiLeft+77 && x<guiLeft+110 && y>=guiTop+39 && y<guiTop+43) drawHoveringText(java.util.Collections.singletonList(net.minecraft.client.resources.I18n.format("brewinandchewin.container.keg."+new String[]{"frigid","cold","normal","warm","hot"}[Fermentation.category(keg.temperature)-1])),x,y ,fontRendererObj);
+  if(x>=guiLeft+77 && x<guiLeft+110 && y>=guiTop+39 && y<guiTop+43) drawHoveringText(java.util.Collections.singletonList(net.minecraft.client.resources.I18n.format("brewinandchewin.container.keg."+Fermentation.temperatureName(Fermentation.category(keg.temperature)))),x,y,fontRendererObj);
  }
 }

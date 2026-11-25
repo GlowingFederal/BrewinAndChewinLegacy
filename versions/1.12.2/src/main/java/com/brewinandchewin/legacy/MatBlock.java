@@ -7,6 +7,9 @@ public final class MatBlock extends BlockContainer {
  public MatBlock() { super(Material.CARPET);setHardness(.2F);setSoundType(SoundType.PLANT);setDefaultState(blockState.getBaseState().withProperty(FACING,EnumFacing.NORTH)); }
  public net.minecraft.tileentity.TileEntity createNewTileEntity(World world,int meta) { return new MatTile(); }
  public boolean isOpaqueCube(IBlockState state) { return false; }public boolean isFullCube(IBlockState state) { return false; }public EnumBlockRenderType getRenderType(IBlockState state) { return EnumBlockRenderType.MODEL; }
+ @Override
+ @net.minecraftforge.fml.relauncher.SideOnly(net.minecraftforge.fml.relauncher.Side.CLIENT)
+ public BlockRenderLayer getRenderLayer() { return BlockRenderLayer.CUTOUT; }
  public AxisAlignedBB getBoundingBox(IBlockState state,IBlockAccess world,BlockPos pos) { return new AxisAlignedBB(3D/16,0,3D/16,13D/16,1D/16,13D/16); }
  protected BlockStateContainer createBlockState() { return new BlockStateContainer(this,FACING); }
  public IBlockState getStateFromMeta(int meta) { return getDefaultState().withProperty(FACING,EnumFacing.byHorizontalIndex(meta&3)); }public int getMetaFromState(IBlockState state) { return state.getValue(FACING).getHorizontalIndex(); }

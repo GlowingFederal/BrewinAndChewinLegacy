@@ -10,12 +10,14 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -59,8 +61,10 @@ public final class KegBlock extends BlockContainer {
         if (!world.isRemote) {
             KegTile tile = (KegTile) world.getTileEntity(pos);
             ItemStack served = tile.serve(player.getHeldItem(hand), player.capabilities.isCreativeMode);
-            if (!Stacks.empty(served)) { if (!player.inventory.addItemStackToInventory(served)) tile.drop(served); }
-            else player.openGui(BrewinAndChewin.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+            if (!Stacks.empty(served)) {
+                if (!player.inventory.addItemStackToInventory(served)) tile.drop(served);
+                world.playSound(null, pos, SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.BLOCKS, 1F, 1F);
+            } else player.openGui(BrewinAndChewin.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
         }
         return true;
     }

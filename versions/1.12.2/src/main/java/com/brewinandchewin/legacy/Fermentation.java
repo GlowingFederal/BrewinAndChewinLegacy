@@ -6,6 +6,7 @@ import vectorwing.farmersdelight.legacy.Stacks;
 import vectorwing.farmersdelight.legacy.api.SourceRecipes;
 /** Immutable startup catalog. Matching assigns distinct inventory slots to duplicate ingredients. */
 public final class Fermentation {
+ private static final String[] TEMPERATURES = {"frigid", "cold", "normal", "warm", "hot"};
  public static final List<Recipe> ALL=new ArrayList<Recipe>();
  public static final Map<String,String> DEFERRED=new LinkedHashMap<String,String>();
  public static void register() {
@@ -86,6 +87,7 @@ public final class Fermentation {
  }
  public static Recipe find(KegTile tile) { for(Recipe r:ALL) if(r.matches(tile)) return r;return null; }
  public static int category(int heat) { return heat<=-9?1:heat<=-5?2:heat<=4?3:heat<=8?4:5; }
+ public static String temperatureName(int category) { return TEMPERATURES[category - 1]; }
  public static boolean liquid(ItemStack stack) { for(Recipe r:ALL) if(Stacks.matches(r.liquid,stack)) return true;return false; }
  public static boolean container(ItemStack stack) { for(Recipe r:ALL) if(Stacks.same(r.container,stack)) return true;return false; }
  private Fermentation() {}

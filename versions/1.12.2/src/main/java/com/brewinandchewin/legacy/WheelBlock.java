@@ -1,6 +1,8 @@
 package com.brewinandchewin.legacy;
 import net.minecraft.block.*;import net.minecraft.block.material.Material;
 import net.minecraft.item.ItemStack;import net.minecraft.entity.player.EntityPlayer;import net.minecraft.world.*;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.util.text.TextComponentTranslation;
 import vectorwing.farmersdelight.legacy.*;
 import net.minecraft.util.*;import net.minecraft.util.math.*;import net.minecraft.block.state.*;import net.minecraft.block.properties.*;
 public final class WheelBlock extends Block {
@@ -18,8 +20,19 @@ public final class WheelBlock extends Block {
   addCollisionBoxToList(pos,mask,boxes,new AxisAlignedBB(min,0,min,max,height,.5));addCollisionBoxToList(pos,mask,boxes,new AxisAlignedBB(min,0,.5,.5,height,max));
  }
  public boolean onBlockActivated(World world,BlockPos pos,IBlockState state,EntityPlayer player,EnumHand hand,EnumFacing side,float x,float y,float z) {
-  if(!pizza && !Ingredients.isKnife(player.getHeldItem(hand))) return true;
-  if(!world.isRemote) { ItemStack portion=portion();if(!pizza || !player.inventory.addItemStackToInventory(portion)) spawnAsEntity(world,pos,portion);int remaining=state.getValue(SERVINGS);if(remaining==0) world.setBlockToAir(pos);else world.setBlockState(pos,state.withProperty(SERVINGS,remaining-1),3); }return true;
+  if (!pizza && !Ingredients.isKnife(player.getHeldItem(hand))) {
+   if (!world.isRemote) player.sendStatusMessage(new TextComponentTranslation("brewinandchewin.block.cheese.use_knife"), true);
+   return true;
+  }
+  if (!world.isRemote) {
+   if (!pizza) world.playSound(null, pos, SoundEvents.BLOCK_CLOTH_BREAK, SoundCategory.PLAYERS, 1F, 1F);
+   ItemStack portion = portion();
+   if (!pizza || !player.inventory.addItemStackToInventory(portion)) spawnAsEntity(world, pos, portion);
+   int remaining = state.getValue(SERVINGS);
+   if (remaining == 0) world.setBlockToAir(pos);
+   else world.setBlockState(pos, state.withProperty(SERVINGS, remaining - 1), 3);
+  }
+  return true;
  }
  public void getDrops(net.minecraft.util.NonNullList<ItemStack> drops,IBlockAccess world,BlockPos pos,IBlockState state,int fortune) { if(state.getValue(SERVINGS)==3) drops.add(new ItemStack(this));else drops.add(Stacks.copy(portion(),state.getValue(SERVINGS)+1)); }
  public boolean hasComparatorInputOverride(IBlockState state) { return true; }public int getComparatorInputOverride(IBlockState state,World world,BlockPos pos) { return state.getValue(SERVINGS); }

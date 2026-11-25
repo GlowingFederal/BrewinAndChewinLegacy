@@ -76,7 +76,9 @@ public final class KegTile extends InventoryTile implements net.minecraft.util.I
   ItemStack stack=Stacks.resolve("brewinandchewin:keg");NBTTagCompound tag=new NBTTagCompound();
   if(!Stacks.empty(inventory[5])) { NBTTagCompound meal=new NBTTagCompound();inventory[5].writeToNBT(meal);tag.setTag("Meal",meal); }
   if(!Stacks.empty(servingContainer)) { NBTTagCompound container=new NBTTagCompound();servingContainer.writeToNBT(container);tag.setTag("Container",container); }
-  if(!customName.isEmpty()) stack.setStackDisplayName(customName);stack.setTagCompound(tag);return stack;
+  stack.setTagCompound(tag);
+  if (!customName.isEmpty()) stack.setStackDisplayName(customName);
+  return stack;
  }
  public void restore(ItemStack stack) {
   if(stack.hasTagCompound()) { NBTTagCompound tag=stack.getTagCompound();if(tag.hasKey("Meal")) inventory[5]=new ItemStack(tag.getCompoundTag("Meal"));if(tag.hasKey("Container")) servingContainer=new ItemStack(tag.getCompoundTag("Container")); }

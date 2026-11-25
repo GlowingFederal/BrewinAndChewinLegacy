@@ -32,3 +32,10 @@
 2026-11-12 14:05 — Increment patch version for release packaging
 
 - Advance the mod patch version by 0.0.1 and refresh matching native artifact and mod metadata versions.
+
+2026-11-25 02:23 — Restore legacy localization and show cheese ripening in recipe viewers
+
+- Supply format 3 resource pack metadata on Forge 1.12.2 so its native lowercase language files load. Convert available source locales to each target's native filename and item/block key format.
+- Add Ripening recipes and usages for Flaxen and Scarlet cheese in NEI and JEI. Use the actual registered aging blocks and display placement, both random-tick advances, and the per-tick chance.
+- Localize the fermentation title, temperature and processing details and register the keg catalyst under the handler ID used by GTNH NEI. Clarify Egg Grog's Tipsy tooltip and retain custom keg names when packaging stored batches.
+- Restore the original cheese knife prompt and cut sound. Use the native bottle-fill sound for hand-serving on 1.12.2 and draw its Item Mat in the cutout render layer.
